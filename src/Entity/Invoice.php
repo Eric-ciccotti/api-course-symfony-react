@@ -4,9 +4,16 @@ namespace App\Entity;
 
 use App\Repository\InvoiceRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiResource;
 
 /**
  * @ORM\Entity(repositoryClass=InvoiceRepository::class)
+ * @ApiResource(attributes={
+ *      "pagination_enabled"=true,
+ *      "pagination_items_per_page"=20,
+ *      "order":{"amount":"desc"}
+ * })
+ * 
  */
 class Invoice
 {
