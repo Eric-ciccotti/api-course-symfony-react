@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Invoice;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CustomerRepository;
 use ApiPlatform\Core\Annotation\ApiFilter;
@@ -15,6 +16,8 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 /**
  * @ORM\Entity(repositoryClass=CustomerRepository::class)
  * @ApiResource(
+ *      collectionOperations={"GET"={"path"="/clients"}},
+ *      itemOperations={"GET"={"path"="/clients/{id}"}},
  *      normalizationContext={
  *          "groups"={"customers_read"}
  * })
@@ -63,10 +66,37 @@ class Customer
     private $invoices;
 
     /**
-     * @Groups({"customers_read","invoices_read"})
+     * @Groups({"customers_read"})
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="customers")
      */
     private $user;
+
+    /**
+     * Permet de récuperer le total des factures (invoices)
+     * Montant que mon client doit payé
+     * @Groups({"customers_read"})
+     * @return float
+     */
+    public function getTotalAmount(): float
+    {
+        return array_reduce($this->invoices->toArray(), function ($total, $invoice) {
+            return $total + $invoice->getAmount();
+        }, 0);
+    }
+
+    /**
+     * Permet de récuperer le total des factures non payées (hors factures payées OU annulée)
+     * Montant que mon client n'a pas encore payé
+     * @Groups({"customers_read"})
+     * @return float
+     */
+    public function getUnpaidAmount(): float
+    {
+        return array_reduce($this->invoices->toArray(), function ($total, $invoice) {
+            return $total + ($invoice->getStatus() === "PAID" || $invoice->getStatus() === "CANCELLED" ? 0 :
+                $invoice->getAmount());
+        }, 0);
+    }
 
     public function __construct()
     {
