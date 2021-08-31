@@ -6,7 +6,7 @@ api_platform:
     swagger:
         versions: [3]
    # The title of the API.
-    title: 'API Cours lior chamla'
+    title: 'API Cours Lior'
 
     # The description of the API.
     description: 'API description'
