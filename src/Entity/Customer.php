@@ -13,14 +13,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=CustomerRepository::class)
  * @ApiResource(
- *      collectionOperations={"GET"={"path"="/clients"},"POST"},
- *      itemOperations={"GET"={"path"="/clients/{id}"},"PUT","PATCH","DELETE"},
+ *      collectionOperations={"GET"={"path"="/customers"},"POST"},
+ *      itemOperations={"GET"={"path"="/customers/{id}"},"PUT","PATCH","DELETE"},
  *      subresourceOperations={
- *          "invoices_get_subresource"={"path"="/clients/{id}/factures"}
+ *          "invoices_get_subresource"={"path"="/customers/{id}/invoices"}
  *       },
  *      normalizationContext={
  *          "groups"={"customers_read"}
@@ -35,30 +36,39 @@ class Customer
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"customers_read","invoices_read"})
+     * @Groups({"customers_read","invoices_read","invoices_subresource"})
      */
     private $id;
 
     /**
-     * @Groups({"customers_read","invoices_read"})
+     * @Groups({"customers_read","invoices_read","invoices_subresource"})
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le prenom du customer est obligatoire")
+     * @Assert\Length(min=3, minMessage="le prenom doit faire entre 3 et 255 caractères!")
+     * @Assert\Length(max=255, maxMessage="le prenom doit faire entre 3 et 255 caractères!")
+     * )
      */
     private $firstName;
 
     /**
-     * @Groups({"customers_read","invoices_read"})
+     * @Groups({"customers_read","invoices_read","invoices_subresource"})
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le nom de famille du customer est obligatoire")
+     * @Assert\Length(min=3, minMessage="le nom de famille doit faire entre 3 et 255 caractères!")
+     * @Assert\Length(max=255, maxMessage="le nom de famille doit faire entre 3 et 255 caractères!")
      */
     private $lastName;
 
     /**
-     * @Groups({"customers_read","invoices_read"})
+     * @Groups({"customers_read","invoices_read","invoices_subresource"})
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="L'email du customer est obligatoire")
+     * @Assert\Email(message="le format de l'email doit être valide")
      */
     private $email;
 
     /**
-     * @Groups({"customers_read","invoices_read"})
+     * @Groups({"customers_read","invoices_read","invoices_subresource"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $company;
@@ -73,6 +83,7 @@ class Customer
     /**
      * @Groups({"customers_read"})
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="customers")
+     * @Assert\NotBlank(message="L'utilisateur est obligatoire")
      */
     private $user;
 

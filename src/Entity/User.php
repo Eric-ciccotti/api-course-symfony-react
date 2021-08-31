@@ -9,11 +9,14 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ApiResource()
+ * @UniqueEntity("email",message="un utilisateur ayant cette adresse email existe déjà")
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -21,36 +24,45 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"customers_read","invoices_read"})
+     * @Groups({"customers_read","invoices_read","invoices_subresource"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"customers_read","invoices_read"})
+     * @Groups({"customers_read","invoices_read","invoices_subresource"})
+     * @Assert\NotBlank(message = "L'email est obligatoire")
      */
     private $email;
 
     /**
      * @ORM\Column(type="json")
+     * 
      */
     private $roles = [];
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Assert\NotBlank(message = "Le mot de passe est obligatoire")
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"customers_read","invoices_read"})
+     * @Assert\NotBlank(message = "Le prenom est obligatoire")
+     * @Groups({"customers_read","invoices_read","invoices_subresource"})
+     * @Assert\Length(min="2", minMessage="Veuillez saisir un prénom d'au moins 2 caractères")
+     * @Assert\Length(max="20", maxMessage="Veuillez saisir un prénom de 20 caractères maximum")
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"customers_read","invoices_read"})
+     * @Assert\NotBlank(message = "Le nom est obligatoire")
+     * @Groups({"customers_read","invoices_read","invoices_subresource"})
+     * @Assert\Length(min="2", minMessage="Veuillez saisir un nom d'au moins 2 caractères")
+     * @Assert\Length(max="20", maxMessage="Veuillez saisir un nom de 20 caractères maximum")
      */
     private $lastName;
 
